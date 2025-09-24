@@ -113,7 +113,7 @@ class BrightDataLinkedInNameScraper:
                     elif 'results' in data:
                         return data['results'], True
                     # Check if there are partial results available
-                    elif 'partial_data' in data:
+                    elif 'partial_data' in 
                         return data['partial_data'], False
                     else:
                         return [data], True
@@ -124,9 +124,9 @@ class BrightDataLinkedInNameScraper:
                 # Job still running, check if any partial data is available
                 try:
                     response_data = response.json()
-                    if 'partial_results' in response_data:
+                    if 'partial_results' in response_
                         return response_data['partial_results'], False
-                    elif 'current_results' in response_data:
+                    elif 'current_results' in response_
                         return response_data['current_results'], False
                 except:
                     pass
@@ -317,7 +317,7 @@ class BrightDataLinkedInNameScraper:
 
             partial_data, job_complete = self.check_partial_results(snapshot_id)
 
-            if partial_data:
+            if partial_
                 print(f"📊 Found {len(partial_data)} profiles so far...")
 
                 # Apply company filtering to partial results
@@ -388,14 +388,14 @@ class BrightDataLinkedInNameScraper:
                     elif isinstance(data, dict):
                         if 'data' in data:
                             final_data = data['data']
-                        elif 'results' in data:
+                        elif 'results' in 
                             final_data = data['results']
                         else:
                             final_data = [data]
                     else:
                         final_data = []
 
-                    if final_data:
+                    if final_
                         # Apply company filtering
                         filtered_results = self.filter_profiles_by_company_regex(
                             final_data, pattern, company_pattern
@@ -492,4 +492,159 @@ class BrightDataLinkedInNameScraper:
                     position = current_company.get('title', 'N/A')
                 else:
                     company_name = str(current_company) if current_company else 'N/A'
-                    position = profile.get(
+                    position = profile.get('position', 'N/A')
+
+                print(f"   Current Company: {'✅' if company_name != 'N/A' else '❌'} {company_name}")
+                print(f"   Position: {'✅' if position != 'N/A' else '❌'} {position}")
+
+                # Additional info
+                about_len = len(profile.get('about', ''))
+                print(f"   About Section: {'✅' if about_len > 50 else '❌'} {about_len} characters")
+
+                experience_count = len(profile.get('experience', []))
+                print(f"   Experience: {'✅' if experience_count > 0 else '❌'} {experience_count} entries")
+
+                followers = profile.get('followers', 0) or profile.get('connections', 0)
+                print(f"   Network: {'✅' if followers else '❌'} {followers} connections/followers")
+
+                print(f"   Profile URL: {profile.get('url', 'N/A')}")
+
+        if low_quality:
+            print(f"\n❌ FILTERED OUT {len(low_quality)} LOW-QUALITY PROFILES:")
+            print("-" * 40)
+            for i, profile in enumerate(low_quality, 1):
+                name = profile.get('name', 'Unknown')
+                profile_id = profile.get('url', 'N/A').split('/')[-1] if profile.get('url') else 'N/A'
+                score = profile.get('_quality_score', 0)
+                print(f"{i}. {name} (ID: {profile_id}, Quality: {score}/10)")
+
+
+def discover_linkedin_profiles_with_smart_termination(
+    api_token: str,
+    dataset_id: str,
+    people: List[Dict[str, str]],
+    company_regex_pattern: str,
+    additional_params: Optional[Dict] = None,
+    case_sensitive: bool = False,
+    min_quality_score: int = 4,  # Increased default to filter out skeleton profiles
+    max_wait: int = 600
+) -> Optional[List[Dict]]:
+    """
+    Optimized LinkedIn profile discovery with smart early termination and quality filtering
+
+    Args:
+        api_token: Your Bright Data API token
+        dataset_id: Your dataset ID
+        people: List of dictionaries with 'first_name' and 'last_name'
+        company_regex_pattern: Regex pattern to match company names
+        additional_params: Optional global search parameters
+        case_sensitive: Whether company name matching should be case sensitive
+        min_quality_score: Score threshold for early termination (1-10 scale)
+        max_wait: Maximum wait time in seconds
+
+    Returns:
+        List of filtered profile data or None if failed
+    """
+    scraper = BrightDataLinkedInNameScraper(api_token, dataset_id)
+
+    print("⚡ SMART LINKEDIN DISCOVERY WITH QUALITY FILTERING")
+    print("=" * 60)
+    print(f"Company filter: '{company_regex_pattern}'")
+    print(f"Quality threshold: {min_quality_score}/10")
+    print(f"Max wait time: {max_wait}s")
+
+    # Remove company filter from API params to get broader initial results
+    api_params = additional_params.copy() if additional_params else {}
+    if 'company' in api_params:
+        api_params.pop('company')
+
+    # Trigger discovery
+    trigger_result = scraper.trigger_name_discovery(people, api_params)
+
+    if trigger_result.get("error"):
+        print("❌ Failed to trigger discovery job")
+        return None
+
+    snapshot_id = trigger_result.get("snapshot_id")
+    if not snapshot_id:
+        print("❌ No snapshot ID received")
+        return None
+
+    print(f"🚀 Job started: {snapshot_id}")
+
+    # Smart waiting with early termination
+    results = scraper.wait_with_early_termination(
+        snapshot_id=snapshot_id,
+        company_pattern=company_regex_pattern,
+        case_sensitive=case_sensitive,
+        min_quality_score=min_quality_score,
+        max_wait=max_wait
+    )
+
+    return results
+
+
+def main():
+    """Enhanced main function with quality filtering"""
+
+    API_TOKEN = ""  # 🔑 Replace with your Bright Data API token
+    DATASET_ID = "gd_l1viktl72bvl7bjuj0"
+
+    print("⚡ ENHANCED LINKEDIN DISCOVERY WITH QUALITY FILTERING")
+    print("=" * 60)
+
+    people_to_discover = [
+        {"first_name": "Chandreyee", "last_name": "Mukherjee"}
+    ]
+
+    COMPANY_REGEX_PATTERN = ".*Grant.*"
+
+    # Enhanced search parameters for better targeting
+    additional_search_params = {
+        "location": "India",  # More specific targeting
+        # "company": "Tech"   # Removed to allow regex filtering instead
+    }
+
+    print(f"Target: {people_to_discover[0]['first_name']} {people_to_discover[0]['last_name']}")
+    print(f"Company pattern: '{COMPANY_REGEX_PATTERN}'")
+
+    # Run enhanced discovery with quality filtering
+    results = discover_linkedin_profiles_with_smart_termination(
+        API_TOKEN,
+        DATASET_ID,
+        people_to_discover,
+        COMPANY_REGEX_PATTERN,
+        additional_search_params,
+        case_sensitive=False,
+        min_quality_score=4,  # Only return profiles with score 4+/10
+        max_wait=300
+    )
+
+    if results:
+        # Create scraper instance for analysis display
+        scraper = BrightDataLinkedInNameScraper(API_TOKEN, DATASET_ID)
+
+        # Analyze all results (including low quality for reporting)
+        high_quality, low_quality = scraper.filter_quality_profiles(results, min_quality_score=4)
+        all_profiles = high_quality + low_quality
+
+        # Display comprehensive analysis
+        scraper.display_results_analysis(all_profiles, high_quality, low_quality)
+
+        if high_quality:
+            # Save only high-quality results
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"linkedin_quality_results_{timestamp}.json"
+
+            with open(filename, "w", encoding="utf-8") as f:
+                json.dump(high_quality, f, indent=2, ensure_ascii=False)
+
+            print(f"\n💾 High-quality results saved to: {filename}")
+        else:
+            print(f"\n⚠️ No high-quality profiles found. Consider lowering quality threshold.")
+    else:
+        print("\n❌ No matching profiles found")
+
+
+if __name__ == "__main__":
+    main()
