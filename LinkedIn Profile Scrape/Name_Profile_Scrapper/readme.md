@@ -21,11 +21,13 @@ Selection Criteria Options:
 "highest_quality" - Uses your existing quality scoring system
 
 Key Point:
-The Bright Data API itself cannot be stopped early - it runs the complete discovery process. The selection happens after all results are downloaded and filtered. This is because:
+**The Bright Data API itself cannot be stopped early - it runs the complete discovery process. The selection happens after all results are downloaded and filtered.** This is because:
 
 The API doesn't know which profiles will match your regex pattern
 We need to see all matches to determine the "best" one
-The API charges per job, not per result, so getting all results doesn't cost extra
+
+**The API charges per job, not per result, so getting all results doesn't cost extra**
+
 
 Recommendation:
 If you want only the best match for "Chandreyee Mukherjee" at any "Grant" company, set select_best_only=True. The algorithm will prioritize someone currently working at a Grant company over someone who previously worked there.
