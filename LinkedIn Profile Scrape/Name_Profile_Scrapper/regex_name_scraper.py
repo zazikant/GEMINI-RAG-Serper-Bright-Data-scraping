@@ -616,7 +616,7 @@ def main():
         COMPANY_REGEX_PATTERN,
         additional_search_params,
         case_sensitive=False,
-        min_quality_score=4,  # Only return profiles with score 4+/10
+        min_quality_score=3,  # Only return profiles with score 4+/10
         max_wait=300
     )
 
