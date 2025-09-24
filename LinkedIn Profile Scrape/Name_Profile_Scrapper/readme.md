@@ -1,4 +1,8 @@
-=============== For Linkedin Name Based Scraping ===================
+
+
+
+
+=============== For Linkedin Name Based Scraping (ALl Names - BrightData_LinkedIn_All_Name_Scrapper.ipynb ) ===================
 
 The issue with just name based linkedin profile scraping is that you're seeing name-based discovery - it often returns incomplete or "skeleton" profiles that have minimal information. Let me enhance the scraper with filtering mechanisms to get better quality profiles: Enhanced Bright Data LinkedIn Scraper - URL & Name DiscoveryCode ∙ Version 4 def filter_quality_profiles(profiles: List[Dict], min_quality_score: int = 3) -> List[Dict]:
     """
