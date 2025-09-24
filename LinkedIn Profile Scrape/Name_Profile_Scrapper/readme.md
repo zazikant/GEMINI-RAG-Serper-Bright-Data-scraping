@@ -1,4 +1,4 @@
-**ADD API TOKEN AS "API_TOKEN"**
+**ADD your api key AS "API_TOKEN"**
 
 **==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - Regex_based_single_email.ipynb ) ================================**
 
