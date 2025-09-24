@@ -1,8 +1,36 @@
 
+**==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - Regex_based_single_email.ipynb ) ================================**
+Current Behavior (Default):
+Returns ALL profiles that match your company regex pattern
+In your example, it would return every "Chandreyee Mukherjee" who currently works at or previously worked at any company containing "Grant"
 
+**New Option - Select Best Match Only:**
+Set select_best_only=True in the main function to get only the single best match based on these criteria:
+Selection Criteria Options:
 
+"comprehensive" (default) - Multi-factor scoring:
 
-=============== For Linkedin Name Based Scraping (ALl Names - BrightData_LinkedIn_All_Name_Scrapper.ipynb ) ===================
++50 points: Currently works at matching company (highest priority)
++2 per experience: More experience entries = higher score
++10 points: Has detailed "about" section (>100 characters)
++15 points: High connection count (>100 connections)
++10 points: High follower count (>500 followers)
+
+"current_company" - Prioritizes profiles currently working at the matching company
+"highest_quality" - Uses your existing quality scoring system
+
+Key Point:
+The Bright Data API itself cannot be stopped early - it runs the complete discovery process. The selection happens after all results are downloaded and filtered. This is because:
+
+The API doesn't know which profiles will match your regex pattern
+We need to see all matches to determine the "best" one
+The API charges per job, not per result, so getting all results doesn't cost extra
+
+Recommendation:
+If you want only the best match for "Chandreyee Mukherjee" at any "Grant" company, set select_best_only=True. The algorithm will prioritize someone currently working at a Grant company over someone who previously worked there.
+Would you like me to modify the selection criteria or add different scoring logic?
+
+**=============== For Linkedin Name Based Scraping (Scrape All Names - BrightData_LinkedIn_All_Name_Scrapper.ipynb ) ===================**
 
 The issue with just name based linkedin profile scraping is that you're seeing name-based discovery - it often returns incomplete or "skeleton" profiles that have minimal information. Let me enhance the scraper with filtering mechanisms to get better quality profiles: Enhanced Bright Data LinkedIn Scraper - URL & Name DiscoveryCode ∙ Version 4 def filter_quality_profiles(profiles: List[Dict], min_quality_score: int = 3) -> List[Dict]:
     """
