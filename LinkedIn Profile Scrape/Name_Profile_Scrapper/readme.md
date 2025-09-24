@@ -2,37 +2,52 @@
 
 **==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - Regex_based_single_email.ipynb ) ================================**
 
-Current Behavior (Default):
-Returns ALL profiles that match your company regex pattern
-In your example, it would return every "Chandreyee Mukherjee" who currently works at or previously worked at any company containing "Grant"
+🎯 New Quality Scoring System (1-10 Scale)
+Instead of focusing on connection counts, the system now evaluates profile completeness:
+Scoring Breakdown:
 
-**New Option - Select Best Match Only:**
-Set select_best_only=True in the main function to get only the single best match based on these criteria:
-Selection Criteria Options:
+Complete Name (1 point): Full first + last name
+Current Company (2 points): Has actual company name (not "N/A" or empty)
+Job Position (2 points): Has title/position info
+About Section (2 points): Substantial description (50+ chars)
+Experience History (1 point): Has actual work experience entries
+Education (1 point): Has education information
+Network Presence (1 point): Has followers/connections (active profile indicator)
 
-"comprehensive" (default) - Multi-factor scoring:
+📊 Smart Filtering Features:
 
-+50 points: Currently works at matching company (highest priority)
-+2 per experience: More experience entries = higher score
-+10 points: Has detailed "about" section (>100 characters)
-+15 points: High connection count (>100 connections)
-+10 points: High follower count (>500 followers)
+Skeleton Profile Detection: Filters out profiles with minimal data
+Quality Threshold: Default minimum score of 4/10 (adjustable)
+Early Termination: Stops when high-quality matches are found
+Detailed Analysis: Shows why profiles passed/failed quality checks
 
-"current_company" - Prioritizes profiles currently working at the matching company
-"highest_quality" - Uses your existing quality scoring system
+🔍 Enhanced Results Display:
+📋 LINKEDIN PROFILE ANALYSIS
+Total profiles found: 5
+High-quality profiles: 2
+Low-quality/skeleton profiles: 3
 
-Key Point:
-**The Bright Data API itself cannot be stopped early - it runs the complete discovery process. The selection happens after all results are downloaded and filtered.** This is because:
+✅ HIGH-QUALITY PROFILES (2 profiles)
+👤 PROFILE 1 (Quality Score: 7/10):
+   Name: Dhawal Vaidya
+   Current Company: ✅ Gem Technologies
+   Position: ✅ Senior Software Engineer
+   About Section: ✅ 120 characters
+   Experience: ✅ 3 entries
+   Network: ✅ 850 connections
 
-The API doesn't know which profiles will match your regex pattern
-We need to see all matches to determine the "best" one
+❌ FILTERED OUT 3 LOW-QUALITY PROFILES:
+1. dhawal vaidya (Quality: 1/10) - Skeleton profile
+2. D. Vaidya (Quality: 2/10) - Missing company info
+🚀 Key Improvements:
 
-**The API charges per job, not per result, so getting all results doesn't cost extra**
+Eliminates skeleton profiles that waste time
+Prioritizes complete profiles with actual data
+Visual indicators (✅/❌) for data completeness
+Saves only high-quality results to JSON
+Adjustable quality threshold based on your needs
 
-
-Recommendation:
-If you want only the best match for "Chandreyee Mukherjee" at any "Grant" company, set select_best_only=True. The algorithm will prioritize someone currently working at a Grant company over someone who previously worked there.
-Would you like me to modify the selection criteria or add different scoring logic?
+The scraper now intelligently identifies and filters out those annoying empty LinkedIn profiles, giving you only the complete, useful profiles that are worth your time! 🎉
 
 **=============== For Linkedin Name Based Scraping (Scrape All Names - BrightData_LinkedIn_All_Name_Scrapper.ipynb ) ===================** 
 
