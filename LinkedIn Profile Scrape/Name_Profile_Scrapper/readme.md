@@ -1,53 +1,56 @@
-**ADD your api key AS "API_TOKEN"**
+1. **ADD your api key AS "API_TOKEN"**
+2. **Use `min_quality_score=3`** (because bare minimum score is 3)
 
-**==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - Regex_based_single_email.ipynb ) ================================**
+**==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - regex_name_scraper.py ) ================================**
 
-🎯 New Quality Scoring System (1-10 Scale)
-Instead of focusing on connection counts, the system now evaluates profile completeness:
-Scoring Breakdown:
+### 🔍 First: Understand Your Current Scoring Logic
 
-Complete Name (1 point): Full first + last name
-Current Company (2 points): Has actual company name (not "N/A" or empty)
-Job Position (2 points): Has title/position info
-About Section (2 points): Substantial description (50+ chars)
-Experience History (1 point): Has actual work experience entries
-Education (1 point): Has education information
-Network Presence (1 point): Has followers/connections (active profile indicator)
+Your `calculate_quality_score()` gives points like this:
 
-📊 Smart Filtering Features:
+| Criteria | Max Points |
+|--------|----------|
+| ✅ Complete name (e.g., "John Doe") | **1 point** |
+| ✅ Current company name (not empty/N/A) | **2 points** |
+| Position/title | 2 points |
+| About section | 1–2 points |
+| Experience | 1 point |
+| Education | 1 point |
+| Followers/connections | 1 point |
+| **Total possible** | **10 points** |
 
-Skeleton Profile Detection: Filters out profiles with minimal data
-Quality Threshold: Default minimum score of 4/10 (adjustable)
-Early Termination: Stops when high-quality matches are found
-Detailed Analysis: Shows why profiles passed/failed quality checks
+So the **absolute bare minimum** (name + company) = **1 + 2 = 3 points**.
 
-🔍 Enhanced Results Display:
-📋 LINKEDIN PROFILE ANALYSIS
-Total profiles found: 5
-High-quality profiles: 2
-Low-quality/skeleton profiles: 3
+> ❌ If you set `min_quality_score=2`, you might get profiles with:
+> - Name ✅ (1 pt)
+> - **No company** ❌ → but maybe they have "connections" (1 pt) → total = 2  
+> → **This is NOT what you want!**
 
-✅ HIGH-QUALITY PROFILES (2 profiles)
-👤 PROFILE 1 (Quality Score: 7/10):
-   Name: Dhawal Vaidya
-   Current Company: ✅ Gem Technologies
-   Position: ✅ Senior Software Engineer
-   About Section: ✅ 120 characters
-   Experience: ✅ 3 entries
-   Network: ✅ 850 connections
+✅ **Set `min_quality_score=3`** to **guarantee**:
+- Name is present (**1 pt**)
+- Company is present and valid (**2 pts**)
 
-❌ FILTERED OUT 3 LOW-QUALITY PROFILES:
-1. dhawal vaidya (Quality: 1/10) - Skeleton profile
-2. D. Vaidya (Quality: 2/10) - Missing company info
-🚀 Key Improvements:
+---
 
-Eliminates skeleton profiles that waste time
-Prioritizes complete profiles with actual data
-Visual indicators (✅/❌) for data completeness
-Saves only high-quality results to JSON
-Adjustable quality threshold based on your needs
+### ✅ How to Enforce "Name + Company Only"
 
-The scraper now intelligently identifies and filters out those annoying empty LinkedIn profiles, giving you only the complete, useful profiles that are worth your time! 🎉
+#### Option 1: **Use `min_quality_score=3` (Recommended)**
+This is the **simplest and safest** way with your current code.
+
+```python
+results = discover_linkedin_profiles_with_smart_termination(
+    API_TOKEN,
+    DATASET_ID,
+    people_to_discover,
+    COMPANY_REGEX_PATTERN,
+    additional_search_params,
+    min_quality_score=3,  # ← Bare minimum: name + company
+    max_wait=300
+)
+```
+
+> ✅ This ensures **every returned profile has**:
+> - A real name (e.g., "Chandreyee Mukherjee")
+> - A non-empty, non-placeholder company (e.g., "Grant Thornton", not "N/A")
 
 **=============== For Linkedin Name Based Scraping (Scrape All Names - BrightData_LinkedIn_All_Name_Scrapper.ipynb ) ===================** 
 
