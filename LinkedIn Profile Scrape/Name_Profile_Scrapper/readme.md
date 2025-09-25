@@ -1,4 +1,4 @@
-1. **ADD your api key AS "API_TOKEN"**
+1. **ADD your api key from Data set of Linkedin name scraper AS "API_TOKEN"**
 2. **Use `min_quality_score=3`** (because bare minimum score is 3 and cannot be 2 or 1)
 
 **==================== For LinkedIn regex based scraping (Scrape Regex based Single Email - regex_name_scraper.py ) ================================**
